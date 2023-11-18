@@ -152,10 +152,15 @@ function pawnMoves(piece_i_html) {
                 square_row_2 = all_squares_ar[Number.parseInt(row) + 2];
                 square_2 = square_row_2[col];
             }
-            available_moves.push(square_1, square_2);
 
+            if (square_2.children().length == 0) {
+                available_moves.push(square_2);
+                square_2.addClass("available");
+
+            }
+
+            available_moves.push(square_1)
             square_1.addClass("available");
-            square_2.addClass("available");
 
         } else {
             available_moves.push(square_1);
@@ -186,12 +191,12 @@ function pawnMoves(piece_i_html) {
             let temp_i_right = square_right.children().length > 0;
 
             if (temp_i_left) {
-                temp_i_left = isOpponentColor(color , square_left);
+                temp_i_left = isOpponentColor(color, square_left);
 
             }
 
             if (temp_i_right) {
-                temp_i_right = isOpponentColor(color , square_right);
+                temp_i_right = isOpponentColor(color, square_right);
 
             }
 
