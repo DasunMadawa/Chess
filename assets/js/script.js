@@ -1,86 +1,155 @@
 let white_pieces = $("div[class = 'white']");
 let black_pieces = $("div[class = 'black']");
 let all_squares = $("#squares_wrapper > div");
+let squares_wrapper = $("#squares_wrapper");
 
 let selected_piece = null;
+let selected_piece_id = null;
 let selected_piece_index = null;
 
 let all_squares_ar = [];
 let board_ar = [];
 
 let available_moves = [];
+let toMove = false; // w = true; b=false;
 
-for (let i = 0; i < white_pieces.length; i++) {
-    white_pieces.eq(i).on("click", function () {
-        try {
-            if (selected_piece_index != null) {
-                white_pieces.eq(selected_piece_index).removeClass('white_clicked');
-                black_pieces.eq(selected_piece_index).removeClass('black_clicked');
-            }
 
-        } catch (e) {
-            console.log(e);
+selected_piece = all_squares.eq(32);
+selected_piece_id = " ";
+
+squares_wrapper.on("click", "div", function () {
+    clearSelectedPieces();
+
+
+    if ($(this).children().length > 0) {
+        let child = $(this).children();
+        let child_id = child.attr("id");
+
+        child_id = child_id.charAt(child_id.length - 1);
+
+        if ((toMove && child_id === "w") || (toMove === false && child_id === "b")) {
+            // console.log("captcha");
+            clear_available_moves();
+            return;
+        }
+
+        console.log(selected_piece_id.charAt(selected_piece_id.length - 1));
+        console.log(child_id)
+
+        selected_piece_id = child_id;
+
+        child_id = child_id.charAt(child_id.length - 1);
+        if (child_id == "w") {
+            $(this).addClass('white_clicked');
+
+        } else {
+            $(this).addClass('black_clicked');
 
         }
-        $(this).addClass('white_clicked');
 
         selected_piece = $(this);
-        selected_piece_index = i;
+        // selected_piece_index = i;
         movements();
-
-    });
-
-}
-
-for (let i = 0; i < black_pieces.length; i++) {
-    black_pieces.eq(i).on("click", function () {
-        try {
-            if (selected_piece_index != null) {
-                black_pieces.eq(selected_piece_index).removeClass('black_clicked');
-                white_pieces.eq(selected_piece_index).removeClass('white_clicked');
-            }
-
-        } catch (e) {
-            console.log(e);
-
-        }
-        $(this).addClass('black_clicked');
-        selected_piece = $(this);
-        selected_piece_index = i;
-        movements();
-
-    });
-
-}
-
-var temp_row_divs = [];
-var temp_row_board = [];
-
-for (let i = 0; i < all_squares.length; i++) {
-    temp_row_divs.push(all_squares.eq(i));
-
-    let temp_i = all_squares.eq(i).children("i");
-    if (temp_i != null) {
-        temp_row_board.push(temp_i.attr("id"));
 
     } else {
-        temp_row_board.push(null);
+        clearSelectedPieces();
+        clear_available_moves();
 
     }
 
-    if (temp_row_divs.length == 8) {
-        all_squares_ar.push(temp_row_divs);
-        board_ar.push(temp_row_board);
-        temp_row_divs = [];
-        temp_row_board = [];
 
+});
+
+
+// for (let i = 0; i < white_pieces.length; i++) {
+//     white_pieces.eq(i).on("click", function () {
+//         try {
+//             if (selected_piece_index != null) {
+//                 white_pieces.eq(selected_piece_index).removeClass('white_clicked');
+//                 black_pieces.eq(selected_piece_index).removeClass('black_clicked');
+//             }
+//
+//         } catch (e) {
+//             console.log(e);
+//
+//         }
+//         $(this).addClass('white_clicked');
+//
+//         selected_piece = $(this);
+//         selected_piece_index = i;
+//         movements();
+//
+//     });
+//
+// }
+//
+// for (let i = 0; i < black_pieces.length; i++) {
+//     black_pieces.eq(i).on("click", function () {
+//         try {
+//             if (selected_piece_index != null) {
+//                 black_pieces.eq(selected_piece_index).removeClass('black_clicked');
+//                 white_pieces.eq(selected_piece_index).removeClass('white_clicked');
+//             }
+//
+//         } catch (e) {
+//             console.log(e);
+//
+//         }
+//         $(this).addClass('black_clicked');
+//         selected_piece = $(this);
+//         selected_piece_index = i;
+//         movements();
+//
+//     });
+//
+// }
+
+function clearSelectedPieces() {
+    for (let i = 0; i < all_squares.length; i++) {
+        try {
+            all_squares.eq(i).removeClass('black_clicked');
+            all_squares.eq(i).removeClass('white_clicked');
+
+        } catch (e) {
+            console.log(e);
+        }
     }
-
+    selected_piece = null;
 }
 
+function addIdsToArray() {
+    all_squares_ar = [];
+    board_ar = [];
 
-console.log(all_squares_ar);
-console.log(board_ar);
+    var temp_row_divs = [];
+    var temp_row_board = [];
+
+    for (let i = 0; i < all_squares.length; i++) {
+        temp_row_divs.push(all_squares.eq(i));
+
+        let temp_i = all_squares.eq(i).children("i");
+        if (temp_i != null) {
+            temp_row_board.push(temp_i.attr("id"));
+
+        } else {
+            temp_row_board.push(null);
+
+        }
+
+        if (temp_row_divs.length == 8) {
+            all_squares_ar.push(temp_row_divs);
+            board_ar.push(temp_row_board);
+            temp_row_divs = [];
+            temp_row_board = [];
+
+        }
+
+    }
+
+    // console.log(all_squares_ar);
+    // console.log(board_ar);
+
+}
 
 
 function movements() {
@@ -119,6 +188,7 @@ function movements() {
 }
 
 function pawnMoves(piece_i_html) {
+    // console.log(selected_piece);
     let id = piece_i_html.attr("id");
     let color = id.charAt(id.length - 1);
 
@@ -141,7 +211,7 @@ function pawnMoves(piece_i_html) {
 
     if (square_1.children().length == 0) {
         // pawns at start
-        if (row == 1 || 6) {
+        if (row == 1 || row == 6) {
             let square_row_2 = null;
             let square_2 = null;
 
@@ -249,7 +319,8 @@ function pawnMoves(piece_i_html) {
         //
         //     square_4.children("i");
         // }
-
+        // clearSelectedPieces();
+        addActions();
     } catch (e) {
         console.log(e);
     }
@@ -272,8 +343,11 @@ function find_place_in_board(id) {
 
 function clear_available_moves() {
     for (let i = 0; i < available_moves.length; i++) {
+        // console.log(i);
         available_moves[i].removeClass("available");
         available_moves[i].removeClass("available_cut");
+
+        available_moves[i].off("click", availableMovesAction);
 
     }
     available_moves = [];
@@ -288,3 +362,63 @@ function isOpponentColor(color, square) {
     return temp_color != color;
 
 }
+
+function addActions() {
+    for (let i = 0; i < available_moves.length; i++) {
+        available_moves[i].on("click", availableMovesAction);
+    }
+
+}
+
+function availableMovesAction() {
+    // console.log(selected_piece.html());
+
+    $(this).html(selected_piece.html());
+    let temp_id = $(this).children("i").attr("id");
+
+    selected_piece_id = temp_id;
+
+    temp_id = temp_id.charAt(temp_id.length - 1);
+
+    toMove = (temp_id === "w");
+
+    $(this).removeClass("white");
+    $(this).removeClass("black");
+
+    if (temp_id == "w") {
+        $(this).addClass("white");
+
+    } else {
+        $(this).addClass("black");
+
+    }
+    // console.log(temp_id);
+
+
+    selected_piece.removeClass("black_clicked");
+    selected_piece.removeClass("white_clicked");
+
+    selected_piece.html("");
+    selected_piece = $(this);
+
+    clear_available_moves();
+    addIdsToArray();
+    // let empty_div = findEmptyDiv();\
+
+};
+
+function checkSameSquare(div1, div2) {
+    let child_1 = div1.children('i');
+    let child_2 = div2.children('i');
+
+    console.log(child_1.attr("id"));
+    console.log(child_2.attr("id"));
+
+    return child_1.attr("id") == child_2.attr("id");
+
+}
+
+addIdsToArray();
+
+
+
