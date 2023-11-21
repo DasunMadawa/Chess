@@ -184,8 +184,7 @@ function movements() {
     } else if (class_list.includes("queen")) {
         piece = "queen";
 
-        rookMoves(piece_i_html);
-        bishopMoves(piece_i_html);
+        queenMoves(piece_i_html);
 
     } else {
         console.log("Unknown piece");
@@ -563,6 +562,12 @@ function bishopMoves(piece_i_html) {
 }
 
 function knightMoves(piece_i_html) {
+
+}
+
+function queenMoves(piece_i_html) {
+    rookMoves(piece_i_html);
+    bishopMoves(piece_i_html);
 
 }
 
