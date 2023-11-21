@@ -70,22 +70,17 @@ body {
 #squares_wrapper > div:nth-child(35) ,
 #squares_wrapper > div:nth-child(37) ,
 #squares_wrapper > div:nth-child(39) ,
-#squares_wrapper > div:nth-child(40) ,
 #squares_wrapper > div:nth-child(42) ,
 #squares_wrapper > div:nth-child(44) ,
 #squares_wrapper > div:nth-child(46) ,
 #squares_wrapper > div:nth-child(48) ,
-#squares_wrapper > div:nth-child(50) ,
 #squares_wrapper > div:nth-child(49) ,
 #squares_wrapper > div:nth-child(51) ,
 #squares_wrapper > div:nth-child(53) ,
 #squares_wrapper > div:nth-child(55) ,
-#squares_wrapper > div:nth-child(57) ,
 #squares_wrapper > div:nth-child(58) ,
 #squares_wrapper > div:nth-child(60) ,
 #squares_wrapper > div:nth-child(62) ,
-#squares_wrapper > div:nth-child(59) ,
-#squares_wrapper > div:nth-child(61) ,
 #squares_wrapper > div:nth-child(64) {
     background-color: #779455;
 

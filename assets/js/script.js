@@ -168,7 +168,7 @@ function movements() {
     } else if (class_list.includes("rook")) {
         piece = "rook";
 
-        rookMoves(piece_i_html)
+        rookMoves(piece_i_html);
 
     } else if (class_list.includes("knight")) {
         piece = "knight";
@@ -176,16 +176,23 @@ function movements() {
     } else if (class_list.includes("bishop")) {
         piece = "bishop";
 
+        bishopMoves(piece_i_html);
+
     } else if (class_list.includes("king")) {
         piece = "king";
 
     } else if (class_list.includes("queen")) {
         piece = "queen";
 
+        rookMoves(piece_i_html);
+        bishopMoves(piece_i_html);
+
     } else {
         console.log("Unknown piece");
 
     }
+
+    addActions();
 
 }
 
@@ -430,7 +437,7 @@ function pawnMoves(piece_i_html) {
         //     square_4.children("i");
         // }
         // clearSelectedPieces();
-        addActions();
+        // addActions();
     } catch (e) {
         console.log(e);
     }
@@ -495,18 +502,69 @@ function rookMoves(piece_i_html) {
         add_available_moves(all_squares_ar[i][col]);
     }
 
-    addActions();
-
-    // for (let i = 0; i < all_squares_ar.length; i++) {
-    //     if (all_squares_ar[i][col].children().length > 0) {
-    //         break;
-    //     }
-    //     add_available_moves(all_squares_ar[i][col]);
-    //
-    //
-    //
-    // }
+    // addActions();
 
 }
+
+function bishopMoves(piece_i_html) {
+    let id = piece_i_html.attr("id");
+    let color = id.charAt(id.length - 1);
+
+    let place_in_board = find_place_in_board(id);
+    let row = place_in_board.charAt(0);
+    let col = place_in_board.charAt(2);
+
+    L1:for (let i = (Number.parseInt(row) + 1) , j = (Number.parseInt(col) +1); i < 8 && j <8; i++ , j++) {
+        if (all_squares_ar[i][j].children().length > 0) {
+            if (isOpponentColor(color, all_squares_ar[i][j])) {
+                add_available_moves(all_squares_ar[i][j]);
+            }
+            break L1;
+        }
+
+        add_available_moves(all_squares_ar[i][j]);
+    }
+
+    L2:for (let i = (Number.parseInt(row) + 1) , j = (Number.parseInt(col) -1); i < 8 && j >= 0; i++ , j--) {
+        if (all_squares_ar[i][j].children().length > 0) {
+            if (isOpponentColor(color, all_squares_ar[i][j])) {
+                add_available_moves(all_squares_ar[i][j]);
+            }
+            break L2;
+        }
+
+        add_available_moves(all_squares_ar[i][j]);
+    }
+
+    L3:for (let i = (Number.parseInt(row) - 1) , j = (Number.parseInt(col) + 1); i >= 0 && j < 8; i-- , j++) {
+        if (all_squares_ar[i][j].children().length > 0) {
+            if (isOpponentColor(color, all_squares_ar[i][j])) {
+                add_available_moves(all_squares_ar[i][j]);
+            }
+            break L3;
+        }
+
+        add_available_moves(all_squares_ar[i][j]);
+    }
+
+    L4:for (let i = (Number.parseInt(row) - 1) , j = (Number.parseInt(col) - 1); i >= 0 && j >= 0; i-- , j--) {
+        if (all_squares_ar[i][j].children().length > 0) {
+            if (isOpponentColor(color, all_squares_ar[i][j])) {
+                add_available_moves(all_squares_ar[i][j]);
+            }
+            break L4;
+        }
+
+        add_available_moves(all_squares_ar[i][j]);
+    }
+
+    // addActions();
+
+}
+
+function knightMoves(piece_i_html) {
+
+}
+
 
 
