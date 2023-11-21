@@ -183,6 +183,8 @@ function movements() {
     } else if (class_list.includes("king")) {
         piece = "king";
 
+        kingMoves(piece_i_html);
+
     } else if (class_list.includes("queen")) {
         piece = "queen";
 
@@ -626,6 +628,64 @@ function bishopMoves(piece_i_html) {
 function queenMoves(piece_i_html) {
     rookMoves(piece_i_html);
     bishopMoves(piece_i_html);
+
+}
+
+function kingMoves(piece_i_html) {
+    let id = piece_i_html.attr("id");
+    let color = id.charAt(id.length - 1);
+
+    let place_in_board = find_place_in_board(id);
+    let row = Number.parseInt(place_in_board.charAt(0));
+    let col = Number.parseInt(place_in_board.charAt(2));
+
+    try {
+        add_available_moves(all_squares_ar[row - 1][col -1]);
+    } catch (e) {
+
+    }
+
+    try {
+        add_available_moves(all_squares_ar[row - 1][col]);
+    } catch (e) {
+
+    }
+
+    try {
+        add_available_moves(all_squares_ar[row - 1][col +1]);
+    } catch (e) {
+
+    }
+
+    try {
+        add_available_moves(all_squares_ar[row][col - 1]);
+    } catch (e) {
+
+    }
+
+    try {
+        add_available_moves(all_squares_ar[row][col + 1]);
+    } catch (e) {
+
+    }
+
+    try {
+        add_available_moves(all_squares_ar[row + 1][col - 1]);
+    } catch (e) {
+
+    }
+
+    try {
+        add_available_moves(all_squares_ar[row + 1][col]);
+    } catch (e) {
+
+    }
+
+    try {
+        add_available_moves(all_squares_ar[row + 1][col + 1]);
+    } catch (e) {
+
+    }
 
 }
 
