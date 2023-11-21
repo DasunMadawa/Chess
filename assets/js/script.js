@@ -173,6 +173,8 @@ function movements() {
     } else if (class_list.includes("knight")) {
         piece = "knight";
 
+        knightMoves(piece_i_html)
+
     } else if (class_list.includes("bishop")) {
         piece = "bishop";
 
@@ -223,14 +225,16 @@ function add_available_moves(piece) {
     console.log(id);
     let color = id.charAt(id.length - 1);
 
-    let isCut = isOpponentColor(color, piece);
+    let isCut = null;
+
+    try {
+        isCut = isOpponentColor(color, piece);
+    } catch (e) {
+        piece.addClass("available");
+    }
 
     if (isCut) {
         piece.addClass("available_cut");
-
-    } else {
-        piece.addClass("available");
-
     }
 
     available_moves.push(piece);
@@ -247,7 +251,7 @@ function isOpponentColor(color, square) {
         temp_color = child.charAt(child.length - 1);
 
     } catch (e) {
-        return false;
+        throw DOMException;
     }
 
     return temp_color != color;
@@ -306,8 +310,8 @@ function pawnMoves(piece_i_html) {
     let color = id.charAt(id.length - 1);
 
     let place_in_board = find_place_in_board(id);
-    let row = place_in_board.charAt(0);
-    let col = place_in_board.charAt(2);
+    let row = Number.parseInt(place_in_board.charAt(0));
+    let col = Number.parseInt(place_in_board.charAt(2));
 
     let square_row_1 = null;
     let square_1 = null;
@@ -317,7 +321,7 @@ function pawnMoves(piece_i_html) {
         square_1 = square_row_1[col];
 
     } else {
-        square_row_1 = all_squares_ar[Number.parseInt(row) + 1];
+        square_row_1 = all_squares_ar[row + 1];
         square_1 = square_row_1[col];
 
     }
@@ -332,7 +336,7 @@ function pawnMoves(piece_i_html) {
                 square_row_2 = all_squares_ar[row - 2];
                 square_2 = square_row_2[col];
             } else {
-                square_row_2 = all_squares_ar[Number.parseInt(row) + 2];
+                square_row_2 = all_squares_ar[row + 2];
                 square_2 = square_row_2[col];
             }
 
@@ -364,13 +368,13 @@ function pawnMoves(piece_i_html) {
             square_row = all_squares_ar[row - 1];
 
         } else {
-            square_row = all_squares_ar[Number.parseInt(row) + 1];
+            square_row = all_squares_ar[row + 1];
 
         }
 
         if (col != 0 && col != 7) {
             let square_left = square_row[col - 1];
-            let square_right = square_row[Number.parseInt(col) + 1];
+            let square_right = square_row[col + 1];
 
             let temp_i_left = square_left.children().length > 0;
             let temp_i_right = square_right.children().length > 0;
@@ -402,7 +406,7 @@ function pawnMoves(piece_i_html) {
             }
 
         } else if (col == 0) {
-            let square_right = square_row[Number.parseInt(col) + 1];
+            let square_right = square_row[col + 1];
 
             if (square_right.children().length > 0) {
                 let is_opponent_color = isOpponentColor(color, square_right);
@@ -452,10 +456,10 @@ function rookMoves(piece_i_html) {
     let color = id.charAt(id.length - 1);
 
     let place_in_board = find_place_in_board(id);
-    let row = place_in_board.charAt(0);
-    let col = place_in_board.charAt(2);
+    let row = Number.parseInt(place_in_board.charAt(0));
+    let col = Number.parseInt(place_in_board.charAt(2));
 
-    L1:for (let i = (Number.parseInt(col) + 1); i < 8; i++) {
+    L1:for (let i = (col + 1); i < 8; i++) {
         if (all_squares_ar[row][i].children().length > 0) {
             if (isOpponentColor(color, all_squares_ar[row][i])) {
                 add_available_moves(all_squares_ar[row][i]);
@@ -466,7 +470,7 @@ function rookMoves(piece_i_html) {
         add_available_moves(all_squares_ar[row][i]);
     }
 
-    L2:for (let i = (Number.parseInt(col) - 1); i >= 0; i--) {
+    L2:for (let i = (col - 1); i >= 0; i--) {
         if (all_squares_ar[row][i].children().length > 0) {
             console.log(isOpponentColor(color, all_squares_ar[row][i]));
             if (isOpponentColor(color, all_squares_ar[row][i])) {
@@ -478,7 +482,7 @@ function rookMoves(piece_i_html) {
         add_available_moves(all_squares_ar[row][i]);
     }
 
-    L3:for (let i = (Number.parseInt(row) + 1); i < 8; i++) {
+    L3:for (let i = (row + 1); i < 8; i++) {
         if (all_squares_ar[i][col].children().length > 0) {
             console.log(isOpponentColor(color, all_squares_ar[i][col]));
             if (isOpponentColor(color, all_squares_ar[i][col])) {
@@ -505,15 +509,73 @@ function rookMoves(piece_i_html) {
 
 }
 
+function knightMoves(piece_i_html) {
+    let id = piece_i_html.attr("id");
+    let color = id.charAt(id.length - 1);
+
+    let place_in_board = find_place_in_board(id);
+    let row = Number.parseInt(place_in_board.charAt(0));
+    let col = Number.parseInt(place_in_board.charAt(2));
+
+    try {
+        add_available_moves(all_squares_ar[row - 2][col + 1]);
+    } catch (e) {
+
+    }
+
+    try {
+        add_available_moves(all_squares_ar[row - 1][col + 2]);
+    } catch (e) {
+
+    }
+
+    try {
+        add_available_moves(all_squares_ar[row - 2][col - 1]);
+    } catch (e) {
+
+    }
+
+    try {
+        add_available_moves(all_squares_ar[row + 2][col - 1]);
+    } catch (e) {
+
+    }
+
+    try {
+        add_available_moves(all_squares_ar[row + 2][col + 1]);
+    } catch (e) {
+
+    }
+
+    try {
+        add_available_moves(all_squares_ar[row - 1][col - 2]);
+    } catch (e) {
+
+    }
+
+    try {
+        add_available_moves(all_squares_ar[row + 1][col - 2]);
+    } catch (e) {
+
+    }
+
+    try {
+        add_available_moves(all_squares_ar[row + 1][col + 2]);
+    } catch (e) {
+
+    }
+
+}
+
 function bishopMoves(piece_i_html) {
     let id = piece_i_html.attr("id");
     let color = id.charAt(id.length - 1);
 
     let place_in_board = find_place_in_board(id);
-    let row = place_in_board.charAt(0);
-    let col = place_in_board.charAt(2);
+    let row = Number.parseInt(place_in_board.charAt(0));
+    let col = Number.parseInt(place_in_board.charAt(2));
 
-    L1:for (let i = (Number.parseInt(row) + 1) , j = (Number.parseInt(col) +1); i < 8 && j <8; i++ , j++) {
+    L1:for (let i = (row + 1), j = (col + 1); i < 8 && j < 8; i++ , j++) {
         if (all_squares_ar[i][j].children().length > 0) {
             if (isOpponentColor(color, all_squares_ar[i][j])) {
                 add_available_moves(all_squares_ar[i][j]);
@@ -524,7 +586,7 @@ function bishopMoves(piece_i_html) {
         add_available_moves(all_squares_ar[i][j]);
     }
 
-    L2:for (let i = (Number.parseInt(row) + 1) , j = (Number.parseInt(col) -1); i < 8 && j >= 0; i++ , j--) {
+    L2:for (let i = (row + 1), j = (col - 1); i < 8 && j >= 0; i++ , j--) {
         if (all_squares_ar[i][j].children().length > 0) {
             if (isOpponentColor(color, all_squares_ar[i][j])) {
                 add_available_moves(all_squares_ar[i][j]);
@@ -535,7 +597,7 @@ function bishopMoves(piece_i_html) {
         add_available_moves(all_squares_ar[i][j]);
     }
 
-    L3:for (let i = (Number.parseInt(row) - 1) , j = (Number.parseInt(col) + 1); i >= 0 && j < 8; i-- , j++) {
+    L3:for (let i = (row - 1), j = (col + 1); i >= 0 && j < 8; i-- , j++) {
         if (all_squares_ar[i][j].children().length > 0) {
             if (isOpponentColor(color, all_squares_ar[i][j])) {
                 add_available_moves(all_squares_ar[i][j]);
@@ -546,7 +608,7 @@ function bishopMoves(piece_i_html) {
         add_available_moves(all_squares_ar[i][j]);
     }
 
-    L4:for (let i = (Number.parseInt(row) - 1) , j = (Number.parseInt(col) - 1); i >= 0 && j >= 0; i-- , j--) {
+    L4:for (let i = (row - 1), j = (col - 1); i >= 0 && j >= 0; i-- , j--) {
         if (all_squares_ar[i][j].children().length > 0) {
             if (isOpponentColor(color, all_squares_ar[i][j])) {
                 add_available_moves(all_squares_ar[i][j]);
@@ -558,10 +620,6 @@ function bishopMoves(piece_i_html) {
     }
 
     // addActions();
-
-}
-
-function knightMoves(piece_i_html) {
 
 }
 
