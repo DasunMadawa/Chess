@@ -168,6 +168,8 @@ function movements() {
     } else if (class_list.includes("rook")) {
         piece = "rook";
 
+        rookMoves(piece_i_html)
+
     } else if (class_list.includes("knight")) {
         piece = "knight";
 
@@ -187,152 +189,8 @@ function movements() {
 
 }
 
-function pawnMoves(piece_i_html) {
-    // console.log(selected_piece);
-    let id = piece_i_html.attr("id");
-    let color = id.charAt(id.length - 1);
-
-    let place_in_board = find_place_in_board(id);
-    let row = place_in_board.charAt(0);
-    let col = place_in_board.charAt(2);
-
-    let square_row_1 = null;
-    let square_1 = null;
-
-    if (color == "w") {
-        square_row_1 = all_squares_ar[row - 1];
-        square_1 = square_row_1[col];
-
-    } else {
-        square_row_1 = all_squares_ar[Number.parseInt(row) + 1];
-        square_1 = square_row_1[col];
-
-    }
-
-    if (square_1.children().length == 0) {
-        // pawns at start
-        if (row == 1 || row == 6) {
-            let square_row_2 = null;
-            let square_2 = null;
-
-            if (color == "w") {
-                square_row_2 = all_squares_ar[row - 2];
-                square_2 = square_row_2[col];
-            } else {
-                square_row_2 = all_squares_ar[Number.parseInt(row) + 2];
-                square_2 = square_row_2[col];
-            }
-
-            if (square_2.children().length == 0) {
-                available_moves.push(square_2);
-                square_2.addClass("available");
-
-            }
-
-            available_moves.push(square_1)
-            square_1.addClass("available");
-
-        } else {
-            available_moves.push(square_1);
-
-            square_1.addClass("available");
-
-        }
-
-    }
-
-
-    // side 2
-    try {
-        let square_row = null;
-        if (color == "w") {
-            square_row = all_squares_ar[row - 1];
-
-        } else {
-            square_row = all_squares_ar[Number.parseInt(row) + 1];
-
-        }
-
-        if (col != 0 && col != 7) {
-            let square_left = square_row[col - 1];
-            let square_right = square_row[Number.parseInt(col) + 1];
-
-            let temp_i_left = square_left.children().length > 0;
-            let temp_i_right = square_right.children().length > 0;
-
-            if (temp_i_left) {
-                temp_i_left = isOpponentColor(color, square_left);
-
-            }
-
-            if (temp_i_right) {
-                temp_i_right = isOpponentColor(color, square_right);
-
-            }
-
-            if (temp_i_left) {
-
-                available_moves.push(square_left);
-                square_left.addClass("available_cut");
-
-            }
-
-            if (temp_i_right) {
-                available_moves.push(square_right);
-                square_right.addClass("available_cut");
-
-            }
-
-        } else if (col == 0) {
-            let square_right = square_row[Number.parseInt(col) + 1];
-
-            if (square_right.children().length > 0) {
-                let is_opponent_color = isOpponentColor(color, square_right);
-
-                if (is_opponent_color) {
-                    available_moves.push(square_right);
-                    square_right.addClass("available_cut");
-
-                }
-
-            }
-
-        } else {
-            let square_left = square_row[col - 1];
-
-            if (square_left.children().length > 0) {
-                let is_opponent_color = isOpponentColor(color, square_left);
-
-                if (is_opponent_color) {
-                    available_moves.push(square_left);
-                    square_left.addClass("available_cut");
-
-                }
-
-            }
-
-        }
-
-        // if (col + 1 != 0) {
-        //     let square_row_4 = all_squares_ar[row - 1];
-        //     let square_4 = square_row_2[col + 1];
-        //
-        //     square_4.children("i");
-        // }
-        // clearSelectedPieces();
-        addActions();
-    } catch (e) {
-        console.log(e);
-    }
-
-    // console.log(place_in_board);
-    // let old_div_html = all_squares_ar[row].[col].html();
-    // console.log(old_div_html);
-
-}
-
 function find_place_in_board(id) {
-    L1:for (let i = 0; i < board_ar.length; i++) {
+    for (let i = 0; i < board_ar.length; i++) {
         for (let j = 0; j < board_ar[i].length; j++) {
             if (board_ar[i][j] == id) {
                 return i + " " + j;
@@ -354,10 +212,37 @@ function clear_available_moves() {
 
 }
 
+function add_available_moves(piece) {
+    let id = selected_piece.children("i").attr("id");
+    console.log(id);
+    let color = id.charAt(id.length - 1);
+
+    let isCut = isOpponentColor(color, piece);
+
+    if (isCut) {
+        piece.addClass("available_cut");
+
+    } else {
+        piece.addClass("available");
+
+    }
+
+    available_moves.push(piece);
+
+}
+
 function isOpponentColor(color, square) {
     let child = square.children();
-    child = child.attr("id");
-    let temp_color = child.charAt(child.length - 1);
+
+    let temp_color = null;
+
+    try {
+        child = child.attr("id");
+        temp_color = child.charAt(child.length - 1);
+
+    } catch (e) {
+        return false;
+    }
 
     return temp_color != color;
 
@@ -405,20 +290,223 @@ function availableMovesAction() {
     addIdsToArray();
     // let empty_div = findEmptyDiv();\
 
-};
-
-function checkSameSquare(div1, div2) {
-    let child_1 = div1.children('i');
-    let child_2 = div2.children('i');
-
-    console.log(child_1.attr("id"));
-    console.log(child_2.attr("id"));
-
-    return child_1.attr("id") == child_2.attr("id");
-
 }
 
 addIdsToArray();
 
+function pawnMoves(piece_i_html) {
+    // console.log(selected_piece);
+    let id = piece_i_html.attr("id");
+    let color = id.charAt(id.length - 1);
+
+    let place_in_board = find_place_in_board(id);
+    let row = place_in_board.charAt(0);
+    let col = place_in_board.charAt(2);
+
+    let square_row_1 = null;
+    let square_1 = null;
+
+    if (color == "w") {
+        square_row_1 = all_squares_ar[row - 1];
+        square_1 = square_row_1[col];
+
+    } else {
+        square_row_1 = all_squares_ar[Number.parseInt(row) + 1];
+        square_1 = square_row_1[col];
+
+    }
+
+    if (square_1.children().length == 0) {
+        // pawns at start
+        if (row == 1 || row == 6) {
+            let square_row_2 = null;
+            let square_2 = null;
+
+            if (color == "w") {
+                square_row_2 = all_squares_ar[row - 2];
+                square_2 = square_row_2[col];
+            } else {
+                square_row_2 = all_squares_ar[Number.parseInt(row) + 2];
+                square_2 = square_row_2[col];
+            }
+
+            if (square_2.children().length == 0) {
+                add_available_moves(square_2);
+                // available_moves.push(square_2);
+                // square_2.addClass("available");
+
+            }
+
+            add_available_moves(square_1);
+            // available_moves.push(square_1)
+            // square_1.addClass("available");
+
+        } else {
+            add_available_moves(square_1);
+            // available_moves.push(square_1);
+            // square_1.addClass("available");
+
+        }
+
+    }
+
+
+    // side 2
+    try {
+        let square_row = null;
+        if (color == "w") {
+            square_row = all_squares_ar[row - 1];
+
+        } else {
+            square_row = all_squares_ar[Number.parseInt(row) + 1];
+
+        }
+
+        if (col != 0 && col != 7) {
+            let square_left = square_row[col - 1];
+            let square_right = square_row[Number.parseInt(col) + 1];
+
+            let temp_i_left = square_left.children().length > 0;
+            let temp_i_right = square_right.children().length > 0;
+
+            if (temp_i_left) {
+                temp_i_left = isOpponentColor(color, square_left);
+
+            }
+
+            if (temp_i_right) {
+                temp_i_right = isOpponentColor(color, square_right);
+
+            }
+
+            if (temp_i_left) {
+                add_available_moves(square_left);
+
+                // available_moves.push(square_left);
+                // square_left.addClass("available_cut");
+
+            }
+
+            if (temp_i_right) {
+                add_available_moves(square_right);
+
+                // available_moves.push(square_right);
+                // square_right.addClass("available_cut");
+
+            }
+
+        } else if (col == 0) {
+            let square_right = square_row[Number.parseInt(col) + 1];
+
+            if (square_right.children().length > 0) {
+                let is_opponent_color = isOpponentColor(color, square_right);
+
+                if (is_opponent_color) {
+                    add_available_moves(square_right);
+
+                }
+
+            }
+
+        } else {
+            let square_left = square_row[col - 1];
+
+            if (square_left.children().length > 0) {
+                let is_opponent_color = isOpponentColor(color, square_left);
+
+                if (is_opponent_color) {
+                    add_available_moves(square_left);
+
+                }
+
+            }
+
+        }
+
+        // if (col + 1 != 0) {
+        //     let square_row_4 = all_squares_ar[row - 1];
+        //     let square_4 = square_row_2[col + 1];
+        //
+        //     square_4.children("i");
+        // }
+        // clearSelectedPieces();
+        addActions();
+    } catch (e) {
+        console.log(e);
+    }
+
+    // console.log(place_in_board);
+    // let old_div_html = all_squares_ar[row].[col].html();
+    // console.log(old_div_html);
+
+}
+
+function rookMoves(piece_i_html) {
+    let id = piece_i_html.attr("id");
+    let color = id.charAt(id.length - 1);
+
+    let place_in_board = find_place_in_board(id);
+    let row = place_in_board.charAt(0);
+    let col = place_in_board.charAt(2);
+
+    L1:for (let i = (Number.parseInt(col) + 1); i < 8; i++) {
+        if (all_squares_ar[row][i].children().length > 0) {
+            if (isOpponentColor(color, all_squares_ar[row][i])) {
+                add_available_moves(all_squares_ar[row][i]);
+            }
+            break L1;
+        }
+
+        add_available_moves(all_squares_ar[row][i]);
+    }
+
+    L2:for (let i = (Number.parseInt(col) - 1); i >= 0; i--) {
+        if (all_squares_ar[row][i].children().length > 0) {
+            console.log(isOpponentColor(color, all_squares_ar[row][i]));
+            if (isOpponentColor(color, all_squares_ar[row][i])) {
+                add_available_moves(all_squares_ar[row][i]);
+            }
+            break L2;
+        }
+
+        add_available_moves(all_squares_ar[row][i]);
+    }
+
+    L3:for (let i = (Number.parseInt(row) + 1); i < 8; i++) {
+        if (all_squares_ar[i][col].children().length > 0) {
+            console.log(isOpponentColor(color, all_squares_ar[i][col]));
+            if (isOpponentColor(color, all_squares_ar[i][col])) {
+                add_available_moves(all_squares_ar[i][col]);
+            }
+            break;
+        }
+
+        add_available_moves(all_squares_ar[i][col]);
+    }
+
+    L4:for (let i = (row - 1); i >= 0; i--) {
+        if (all_squares_ar[i][col].children().length > 0) {
+            if (isOpponentColor(color, all_squares_ar[i][col])) {
+                add_available_moves(all_squares_ar[i][col]);
+            }
+            break;
+        }
+
+        add_available_moves(all_squares_ar[i][col]);
+    }
+
+    addActions();
+
+    // for (let i = 0; i < all_squares_ar.length; i++) {
+    //     if (all_squares_ar[i][col].children().length > 0) {
+    //         break;
+    //     }
+    //     add_available_moves(all_squares_ar[i][col]);
+    //
+    //
+    //
+    // }
+
+}
 
 
