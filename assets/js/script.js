@@ -1,5 +1,5 @@
-let white_pieces = $("div[class = 'white']");
-let black_pieces = $("div[class = 'black']");
+// let white_pieces = $("div[class = 'white']");
+// let black_pieces = $("div[class = 'black']");
 let all_squares = $("#squares_wrapper > div");
 let squares_wrapper = $("#squares_wrapper");
 
@@ -11,15 +11,23 @@ let all_squares_ar = [];
 let board_ar = [];
 
 let available_moves = [];
-let toMove = false; // w = true; b=false;
+let toMove = false; // w = true; b=false; last moved
 
+let isCheck = false;
+let checkColor = null;
+let checkedSq = null;
+let checkedBy = [];
 
 selected_piece = all_squares.eq(32);
 selected_piece_id = " ";
 
+
+// for (let i = 0; i < all_squares.length; i++) {
+//     all_squares.eq(i).addClass("hide");
+// }
+
 squares_wrapper.on("click", "div", function () {
     clearSelectedPieces();
-
 
     if ($(this).children().length > 0) {
         let child = $(this).children();
@@ -32,9 +40,6 @@ squares_wrapper.on("click", "div", function () {
             clear_available_moves();
             return;
         }
-
-        console.log(selected_piece_id.charAt(selected_piece_id.length - 1));
-        console.log(child_id)
 
         selected_piece_id = child_id;
 
@@ -224,7 +229,7 @@ function clear_available_moves() {
 
 function add_available_moves(piece) {
     let id = selected_piece.children("i").attr("id");
-    console.log(id);
+    // console.log(id);
     let color = id.charAt(id.length - 1);
 
     let isCut = null;
@@ -233,24 +238,38 @@ function add_available_moves(piece) {
         isCut = isOpponentColor(color, piece);
     } catch (e) {
         piece.addClass("available");
+        available_moves.push(piece);
     }
 
     if (isCut) {
         piece.addClass("available_cut");
+        available_moves.push(piece);
     }
 
-    available_moves.push(piece);
 
+    // console.log(available_moves.length);
 }
 
 function isOpponentColor(color, square) {
     let child = square.children();
-
+    let id = null;
     let temp_color = null;
 
     try {
-        child = child.attr("id");
-        temp_color = child.charAt(child.length - 1);
+        id = child.attr("id");
+
+        temp_color = id.charAt(id.length - 1);
+
+        if (id.substring(0, 4) == "king" && temp_color != color) {
+            isCheck = true;
+            checkColor = temp_color;
+            checkedBy.push(selected_piece);
+            checkedSq = square;
+
+            selected_piece.addClass("check");
+            square.addClass("check");
+            return false;
+        }
 
     } catch (e) {
         throw DOMException;
@@ -272,6 +291,8 @@ function availableMovesAction() {
 
     $(this).html(selected_piece.html());
     let temp_id = $(this).children("i").attr("id");
+
+    // console.log(selected_piece);
 
     selected_piece_id = temp_id;
 
@@ -298,9 +319,13 @@ function availableMovesAction() {
     selected_piece.html("");
     selected_piece = $(this);
 
+    // console.log(selected_piece);
     clear_available_moves();
     addIdsToArray();
     // let empty_div = findEmptyDiv();\
+
+    clearCheck();
+    check();
 
 }
 
@@ -474,7 +499,6 @@ function rookMoves(piece_i_html) {
 
     L2:for (let i = (col - 1); i >= 0; i--) {
         if (all_squares_ar[row][i].children().length > 0) {
-            console.log(isOpponentColor(color, all_squares_ar[row][i]));
             if (isOpponentColor(color, all_squares_ar[row][i])) {
                 add_available_moves(all_squares_ar[row][i]);
             }
@@ -486,7 +510,6 @@ function rookMoves(piece_i_html) {
 
     L3:for (let i = (row + 1); i < 8; i++) {
         if (all_squares_ar[i][col].children().length > 0) {
-            console.log(isOpponentColor(color, all_squares_ar[i][col]));
             if (isOpponentColor(color, all_squares_ar[i][col])) {
                 add_available_moves(all_squares_ar[i][col]);
             }
@@ -640,7 +663,7 @@ function kingMoves(piece_i_html) {
     let col = Number.parseInt(place_in_board.charAt(2));
 
     try {
-        add_available_moves(all_squares_ar[row - 1][col -1]);
+        add_available_moves(all_squares_ar[row - 1][col - 1]);
     } catch (e) {
 
     }
@@ -652,7 +675,7 @@ function kingMoves(piece_i_html) {
     }
 
     try {
-        add_available_moves(all_squares_ar[row - 1][col +1]);
+        add_available_moves(all_squares_ar[row - 1][col + 1]);
     } catch (e) {
 
     }
@@ -688,6 +711,119 @@ function kingMoves(piece_i_html) {
     }
 
 }
+
+function check() {
+    let temp_selected_piece = selected_piece;
+    let temp_selected_piece_id = selected_piece_id;
+    let temp_move = toMove;
+
+    // if (isCheck) {
+    //     selected_piece.click();
+    //     console.log(available_moves.length);
+    //
+    //     if (available_moves.children().length > 0) {
+    //
+    //     }
+    //
+    // }
+
+    let white_pieces = $("div[class = 'white']");
+    let black_pieces = $("div[class = 'black']");
+
+
+    for (let i = 0; i < white_pieces.length; i++) {
+        toMove = false;
+
+        white_pieces.eq(i).click();
+
+        toMove = temp_move;
+        selected_piece = temp_selected_piece;
+        selected_piece_id = temp_selected_piece_id;
+        clear_available_moves();
+    }
+
+    for (let i = 0; i < black_pieces.length; i++) {
+        toMove = true;
+
+        white_pieces.eq(i).click();
+
+        toMove = temp_move;
+        selected_piece = temp_selected_piece;
+        selected_piece_id = temp_selected_piece_id;
+        clear_available_moves();
+    }
+
+}
+
+function clearCheck() {
+    if (!isCheck) {
+        return;
+    }
+
+    for (let i = 0; i < checkedBy.length; i++) {
+        let temp_square = checkedBy[i];
+
+        temp_square.removeClass("check");
+
+    }
+
+    checkedSq.removeClass("check");
+
+    isCheck = false;
+    checkColor = null;
+    checkedBy = [];
+
+}
+
+function removeCheckingMoves(availableMove , i) {
+    // console.log(selected_piece.html());
+    let available_move_html = availableMove.html();
+    let selected_piece_html = selected_piece.html();
+
+    let temp_sel_id = selected_piece_id;
+
+    //
+    $(this).html(selected_piece.html());
+    let temp_id = $(this).children("i").attr("id");
+
+    selected_piece_id = temp_id;
+
+    let color = temp_id.charAt(temp_id.length - 1);
+
+    toMove = (color === "w");
+
+    $(this).removeClass("white");
+    $(this).removeClass("black");
+
+    if (temp_id == "w") {
+        $(this).addClass("white");
+
+    } else {
+        $(this).addClass("black");
+
+    }
+
+    selected_piece.removeClass("black_clicked");
+    selected_piece.removeClass("white_clicked");
+
+    selected_piece.html("");
+    selected_piece = $(this);
+
+    // console.log(selected_piece);
+    clear_available_moves();
+    addIdsToArray();
+    // let empty_div = findEmptyDiv();\
+
+    clearCheck();
+    check();
+
+    if (isCheck) {
+        available_moves[i]
+    }
+
+}
+
+// setInterval(check, 3000);
 
 
 

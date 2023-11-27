@@ -135,12 +135,21 @@ body {
 }
 
 .available {
-    border: 5px solid #fff267!important;
+    border: 5px solid #fff267;
+
+}
+
+.check {
+    background-color: #ff6767 !important;
 
 }
 
 .available_cut {
-    border: 5px solid #ff6767 !important;
+    border: 5px solid #ff6767;
 
+}
+
+.hide {
+    border: none!important;
 }
 
