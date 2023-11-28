@@ -8,19 +8,14 @@ let all_squares = $("#squares_wrapper > div");
 let squares_wrapper = $("#squares_wrapper");
 
 let selected_piece = null;
-// let selected_piece_id = null;
-let selected_piece_index = null;
 
 let all_squares_ar = [];
 let board_ar = [];
 
-let available_moves = [];
+// let available_moves = [];
 let toMove = false; // w = true; b=false; last moved
 
-let isCheck = false;
-let checkColor = null;
-let checkedSq = null;
-let checkedBy = [];
+let checked = new CheckModel(false, null, null, []);
 
 selected_piece = all_squares.eq(32);
 // selected_piece_id = " ";
@@ -146,8 +141,6 @@ function addIdsToArray() {
             let color = list[list.length - 1];
             let sq = $(`i[id = ${id}]`).parent();
 
-            selected_piece = sq;
-
             // selected_piece_id = id;
             // movements();
             // let moves = available_moves;
@@ -199,10 +192,22 @@ function setMovements() {
 }
 
 function showAvailableMoves() {
-    // console.log(selected_piece.availableMoves.length);
+    console.log(selected_piece.id);
+    console.log(selected_piece.availableMoves);
     for (let i = 0; i < selected_piece.availableMoves.length; i++) {
-        add_available_moves(selected_piece.availableMoves[i]);
+        let temp_moves = selected_piece.availableMoves;
+        let isChecked = redoChecking(selected_piece.availableMoves[i]);
+        selected_piece.availableMoves = temp_moves;
+
+        if (isChecked) {
+            selected_piece.availableMoves.splice(i, 1);
+            console.log(temp_moves.length);
+            i--;
+            continue;
+        }
+
     }
+    // add_available_moves(selected_piece.availableMoves[i]);
     addActions();
 }
 
@@ -277,7 +282,7 @@ function clear_available_moves() {
         selected_piece.availableMoves = [];
 
     }
-    available_moves = [];
+    // available_moves = [];
 
 }
 
@@ -311,16 +316,29 @@ function isOpponentColor(color, square) {
 
         temp_color = id.charAt(id.length - 1);
 
-        // if (id.substring(0, 4) == "king" && temp_color != color) {
-        //     isCheck = true;
-        //     checkColor = temp_color;
-        //     checkedBy.push(selected_piece);
-        //     checkedSq = square;
-        //
-        //     selected_piece.addClass("check");
-        //     square.addClass("check");
-        //     return false;
-        // }
+        if (id.substring(0, 4) == "king" && temp_color != color) {
+            checked.isCheck = true;
+
+            if (selected_piece.color === "w") {
+                checked.checkColor = "b";
+
+            } else {
+                checked.checkColor = "w";
+
+            }
+
+            checked.checkedSq = square;
+            checked.checkedBy.push(selected_piece.div);
+
+            // isCheck = true;
+            // checkColor = temp_color;
+            // checkedBy.push(selected_piece);
+            // checkedSq = square;
+
+            selected_piece.div.addClass("check");
+            square.addClass("check");
+            return false;
+        }
 
     } catch (e) {
         throw DOMException;
@@ -338,73 +356,149 @@ function addActions() {
     for (let i = 0; i < selected_piece.availableMoves.length; i++) {
         // console.log(selected_piece.id);
 
-        // removeCheckingMoves(available_moves[i], i);
+        add_available_moves(selected_piece.availableMoves[i]);
         selected_piece.availableMoves[i].on("click", availableMovesAction);
     }
 
 }
 
-function availableMovesAction() {
-    // console.log(selected_piece.html());
-    // let place_in_board_old = find_place_in_board(selected_piece.id);
-    // let row_old = Number.parseInt(place_in_board_old.charAt(0));
-    // let col_old = Number.parseInt(place_in_board_old.charAt(2));
-
-    $(this).html(selected_piece.div.html());
-    let temp_id = $(this).children("i").attr("id");
-
-    // console.log(temp_id);
-
-    // selected_piece_id = temp_id;
-
-    // temp_id = temp_id.charAt(temp_id.length - 1);
+function doMoves(piece) {
+    piece.html(selected_piece.div.html());
 
     toMove = (selected_piece.color === "w");
 
-    $(this).removeClass("white");
-    $(this).removeClass("black");
+    piece.removeClass("white");
+    piece.removeClass("black");
 
     selected_piece.div.removeClass("white");
     selected_piece.div.removeClass("black");
 
     if (selected_piece.color == "w") {
-        $(this).addClass("white");
+        piece.addClass("white");
 
     } else {
-        $(this).addClass("black");
+        piece.addClass("black");
 
     }
-    // console.log(temp_id);
-
 
     selected_piece.div.removeClass("black_clicked");
     selected_piece.div.removeClass("white_clicked");
 
     selected_piece.div.html("");
-    selected_piece.div = $(this);
+    selected_piece.div = piece;
 
-    // let place_in_board = $(this).attr("id");
-    // let row = Number.parseInt(place_in_board.charAt(0));
-    // let col = Number.parseInt(place_in_board.charAt(2));
+}
+
+function availableMovesAction() {
+    // $(this).html(selected_piece.div.html());
     //
-    // board_ar[row][col] = selected_piece;
-    // board_ar[row_old][col_old] = null;
+    // toMove = (selected_piece.color === "w");
+    //
+    // $(this).removeClass("white");
+    // $(this).removeClass("black");
+    //
+    // selected_piece.div.removeClass("white");
+    // selected_piece.div.removeClass("black");
+    //
+    // if (selected_piece.color == "w") {
+    //     $(this).addClass("white");
+    //
+    // } else {
+    //     $(this).addClass("black");
+    //
+    // }
+    //
+    // selected_piece.div.removeClass("black_clicked");
+    // selected_piece.div.removeClass("white_clicked");
+    //
+    // selected_piece.div.html("");
+    // selected_piece.div = $(this);
 
-    // console.log(selected_piece);
+
+    doMoves($(this));
+
     clear_available_moves();
-    // addIdsToArray();
-    // let empty_div = findEmptyDiv();\
-
-    // clearCheck();
-    // check();
+    clearCheck();
 
     addIdsToArray();
     setMovements();
     console.log(selected_piece);
 
+
 }
 
 // addIdsToArray();
+
+function redoChecking(sq) {
+    let available_move_html = sq.html();
+    let selected_piece_html = selected_piece.div.html();
+    let temp_sel_piece = selected_piece.div
+    let temp_move = toMove;
+    let sq_obj = null;
+
+    let is_checked = null;
+
+    if (sq.children().length > 0) {
+        sq_obj = findPieceObject(sq.children("i").attr("id"));
+    }
+
+    doMoves(sq);
+
+    clear_available_moves();
+    clearCheck();
+
+    addIdsToArray();
+    setMovements();
+
+    if (checked.isCheck && checked.checkColor == selected_piece.color) {
+        console.log(sq);
+        console.log(checked);
+        is_checked = true;
+    } else {
+        is_checked = false;
+    }
+
+
+    sq.html(available_move_html);
+    selected_piece.div = temp_sel_piece;
+    selected_piece.div.html(selected_piece_html);
+
+
+    toMove = temp_move
+
+    sq.removeClass("white");
+    sq.removeClass("black");
+    selected_piece.div.removeClass("white");
+    selected_piece.div.removeClass("black");
+
+    if (sq_obj != null) {
+        if (sq_obj.color == "w") {
+            sq.addClass("white");
+
+        } else {
+            sq.addClass("black");
+
+        }
+    }
+
+    if (selected_piece.color == "w") {
+        selected_piece.div.addClass("white");
+        selected_piece.div.addClass("white_clicked");
+    } else {
+        selected_piece.div.addClass("black");
+        selected_piece.div.addClass("black_clicked");
+
+    }
+
+    clear_available_moves();
+    clearCheck();
+
+    addIdsToArray();
+    setMovements();
+
+    return is_checked;
+
+}
 
 function pawnMoves(piece) {
     // console.log(selected_piece);
@@ -825,22 +919,19 @@ function check() {
 }
 
 function clearCheck() {
-    if (!isCheck) {
+    if (!checked.isCheck) {
         return;
     }
 
-    for (let i = 0; i < checkedBy.length; i++) {
-        let temp_square = checkedBy[i];
-
+    for (let i = 0; i < checked.checkedBy.length; i++) {
+        let temp_square = checked.checkedBy[i];
         temp_square.removeClass("check");
 
     }
 
-    checkedSq.removeClass("check");
+    checked.checkedSq.removeClass("check");
 
-    isCheck = false;
-    checkColor = null;
-    checkedBy = [];
+    checked = new CheckModel(false, null, null, []);
 
 }
 
@@ -899,7 +990,7 @@ function removeCheckingMoves(availableMove, i) {
     check();
 
     //
-    available_moves = temp_available_moves;
+    // available_moves = temp_available_moves;
     availableMove.removeClass("white");
     availableMove.removeClass("black");
 
@@ -952,7 +1043,54 @@ function filterKnightMoves(piece) {
 }
 
 function filterKingMoves(piece) {
-    filterKnightMoves(piece);
+    if (piece.children().length > 0) {
+        if (isOpponentColor(selected_piece.color, piece)) {
+            selected_piece.availableMoves.push(piece);
+            // let is_check_move = filterCheckMoves(piece);
+            // if (!is_check_move) {
+            // }
+
+        }
+
+    } else {
+        selected_piece.availableMoves.push(piece);
+        // let is_check_move = filterCheckMoves(piece);
+        // if (!is_check_move) {
+        // }
+
+    }
+
+
+    // filterKnightMoves(piece);
+
+}
+
+function filterCheckMoves(piece) {
+    // let current_move_id = piece.attr("id");
+    // console.log(selected_piece.id);
+    //
+    // for (let i = 0; i < 8; i++) {
+    //     for (let j = 0; j < 8; j++) {
+    //         let temp_el = board_ar[i][j];
+    //         // console.log(current_move_id);
+    //         if (temp_el != null) {
+    //             console.log(temp_el.color);
+    //             console.log(selected_piece.color);
+    //
+    //             for (let k = 0; k < temp_el.availableMoves.length; k++) {
+    //                 if (temp_el.availableMoves[k].attr("id") == current_move_id && temp_el.color != selected_piece.color) {
+    //                     console.log("gotchaaaaaaaaaaaaaa");
+    //                     console.log(temp_el.availableMoves[k].attr("id"));
+    //                     return true;
+    //
+    //                 }
+    //             }
+    //
+    //         }
+    //
+    //     }
+    // }
+    // return false;
 
 }
 
