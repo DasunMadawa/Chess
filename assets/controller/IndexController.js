@@ -1,6 +1,6 @@
 import {CheckModel} from "../../model/CheckModel.js";
 import {PieceModel} from "../../model/PieceModel.js";
-import {SelectedPieceModel} from "../../model/SelectedPieceModel.js";
+// import {SelectedPieceModel} from "../../model/SelectedPieceModel.js";
 
 // let white_pieces = $("div[class = 'white']");
 // let black_pieces = $("div[class = 'black']");
@@ -17,7 +17,7 @@ let toMove = false; // w = true; b=false; last moved
 
 let checked = new CheckModel(false, null, null, []);
 
-selected_piece = all_squares.eq(32);
+// selected_piece = all_squares.eq(32);
 // selected_piece_id = " ";
 
 let break_iteration_check = false;
@@ -189,9 +189,10 @@ function setMovements() {
     selected_piece = temp_sel_piece;
     // selected_piece_id = temp_sel_id;
 
+
 }
 
-function showAvailableMoves() {
+function removeIllegalMoves() {
     for (let i = 0; i < selected_piece.availableMoves.length; i++) {
         let temp_moves = selected_piece.availableMoves;
 
@@ -215,7 +216,35 @@ function showAvailableMoves() {
         }
 
     }
+}
+
+function showAvailableMoves() {
+    // for (let i = 0; i < selected_piece.availableMoves.length; i++) {
+    //     let temp_moves = selected_piece.availableMoves;
+    //
+    //     let isCheckedCover = redoChecking(selected_piece.availableMoves[i]);
+    //     selected_piece.availableMoves = temp_moves;
+    //
+    //     if (checked.isCheck && isCheckedCover) {
+    //         selected_piece.availableMoves.splice(i, 1);
+    //         i--;
+    //         continue;
+    //     }
+    //
+    //     let isCheckedPrevent = redoChecking(selected_piece.availableMoves[i]);
+    //     selected_piece.availableMoves = temp_moves;
+    //
+    //     if (isCheckedPrevent) {
+    //         selected_piece.availableMoves.splice(i, 1);
+    //         console.log(temp_moves.length);
+    //         i--;
+    //         continue;
+    //     }
+    //
+    // }
     // add_available_moves(selected_piece.availableMoves[i]);
+    removeIllegalMoves();
+
     addActions();
 }
 
@@ -326,7 +355,12 @@ function isOpponentColor(color, square) {
 
         if (id.substring(0, 4) == "king" && temp_color != color) {
             if (checked.isCheck && checked.checkColor == color) {
-                checked.checkColor = temp_color;
+                if (selected_piece.id.substring(0, 4) == "king") {
+
+                } else {
+                    checked.checkColor = temp_color;
+
+                }
 
             } else {
                 checked.isCheck = true;
@@ -342,8 +376,8 @@ function isOpponentColor(color, square) {
                 checked.checkedSq = square;
                 checked.checkedBy.push(selected_piece.div);
 
-                console.log(checked.checkedSq);
-                console.log(checked.checkedBy);
+                // console.log(checked.checkedSq);
+                // console.log(checked.checkedBy);
 
                 // isCheck = true;
                 // checkColor = temp_color;
@@ -369,7 +403,7 @@ function addActions() {
     if (selected_piece == null) {
         return;
     }
-    console.log(selected_piece);
+    // console.log(selected_piece);
     for (let i = 0; i < selected_piece.availableMoves.length; i++) {
         // console.log(selected_piece.id);
 
@@ -439,8 +473,22 @@ function availableMovesAction() {
 
     addIdsToArray();
     setMovements();
-    console.log(selected_piece);
+    // console.log(selected_piece);
 
+    if (checked.isCheck && isCheckMate()) {
+        let temp_color = null;
+        if (checked.checkColor == "w") {
+            temp_color = "White";
+        } else {
+            temp_color = "Black"
+        }
+
+        Swal.fire({
+            title: "Checkmate",
+            text: temp_color + " player is checkmate",
+            icon: "warning"
+        });
+    }
 
 }
 
@@ -510,6 +558,33 @@ function redoChecking(sq) {
     setMovements();
 
     return is_checked;
+
+}
+
+function isCheckMate() {
+    let isMovesLeft = false;
+    for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+            let temp_el = board_ar[i][j];
+
+            if (temp_el != null) {
+                let temp_color = checked.checkedSq.children("i").attr("id");
+                temp_color = temp_color.charAt(temp_color.length - 1);
+
+                if (temp_el.color == temp_color) {
+                    temp_el.div.click();
+                    if (temp_el.availableMoves.length > 0) {
+                        isMovesLeft = true;
+
+                    }
+                }
+
+            }
+
+        }
+    }
+
+    return !isMovesLeft;
 
 }
 
