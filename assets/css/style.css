@@ -153,3 +153,42 @@ body {
     border: none!important;
 }
 
+#pawn_promo_bg {
+    display: none;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(50px);
+}
+
+#pawn_promo_wrapper {
+    position: absolute;
+    display: grid;
+    grid-template-columns: repeat(4 , 1fr);
+    width: 400px;
+    height: 100px;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+
+}
+
+#pawn_promo_wrapper > div {
+    background-color: #779455;
+    margin: 10px;
+    border: 3px solid #00000c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+
+}
+

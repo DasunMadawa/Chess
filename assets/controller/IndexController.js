@@ -15,7 +15,9 @@ let board_ar = [];
 // let available_moves = [];
 let toMove = false; // w = true; b=false; last moved
 
-let checked = new CheckModel(false, null, null, []);
+// let checked = new CheckModel(false, null, null, []);
+let checked_w = new CheckModel(false, null, null, []);
+let checked_b = new CheckModel(false, null, null, []);
 
 // selected_piece = all_squares.eq(32);
 // selected_piece_id = " ";
@@ -195,11 +197,20 @@ function setMovements() {
 function removeIllegalMoves() {
     for (let i = 0; i < selected_piece.availableMoves.length; i++) {
         let temp_moves = selected_piece.availableMoves;
+        // let temp_checked = null;
+        //
+        // if (selected_piece.color === "w") {
+        //     temp_checked = checked_w;
+        //
+        // } else {
+        //     temp_checked = checked_b;
+        //
+        // }
 
         let isCheckedCover = redoChecking(selected_piece.availableMoves[i]);
         selected_piece.availableMoves = temp_moves;
 
-        if (checked.isCheck && isCheckedCover) {
+        if (isCheckedCover) {
             selected_piece.availableMoves.splice(i, 1);
             i--;
             continue;
@@ -354,42 +365,53 @@ function isOpponentColor(color, square) {
         temp_color = id.charAt(id.length - 1);
 
         if (id.substring(0, 4) == "king" && temp_color != color) {
-            if (checked.isCheck && checked.checkColor == color) {
-                if (selected_piece.id.substring(0, 4) == "king") {
+            // if (checked.isCheck && checked.checkColor == selected_piece.color) {
+            //     if (selected_piece.pieceName != "king") {
+            //         if (checked.checkColor === "w") {
+            //             checked.checkColor = "b";
+            //
+            //         } else {
+            //             checked.checkColor = "w";
+            //
+            //         }
+            //
+            //     }
+            //
+            // } else {}
 
-                } else {
-                    checked.checkColor = temp_color;
+            let temp_check = null;
 
-                }
+            if (selected_piece.color === "w") {
+                temp_check = checked_b;
+                temp_check.checkColor = "b";
 
             } else {
-                checked.isCheck = true;
+                temp_check = checked_w;
+                temp_check.checkColor = "w";
 
-                if (selected_piece.color === "w") {
-                    checked.checkColor = "b";
-
-                } else {
-                    checked.checkColor = "w";
-
-                }
-
-                checked.checkedSq = square;
-                checked.checkedBy.push(selected_piece.div);
-
-                // console.log(checked.checkedSq);
-                // console.log(checked.checkedBy);
-
-                // isCheck = true;
-                // checkColor = temp_color;
-                // checkedBy.push(selected_piece);
-                // checkedSq = square;
-
-                selected_piece.div.addClass("check");
-                square.addClass("check");
             }
 
+            temp_check.isCheck = true;
+
+
+            temp_check.checkedSq = square;
+            temp_check.checkedBy.push(selected_piece.div);
+
+            // console.log(checked.checkedSq);
+            // console.log(checked.checkedBy);
+
+            // isCheck = true;
+            // checkColor = temp_color;
+            // checkedBy.push(selected_piece);
+            // checkedSq = square;
+
+            selected_piece.div.addClass("check");
+            square.addClass("check");
+
             return false;
+
         }
+
 
     } catch (e) {
         throw DOMException;
@@ -465,6 +487,7 @@ function availableMovesAction() {
     // selected_piece.div.html("");
     // selected_piece.div = $(this);
 
+    pawnChecking($(this));
 
     doMoves($(this));
 
@@ -475,9 +498,18 @@ function availableMovesAction() {
     setMovements();
     // console.log(selected_piece);
 
-    if (checked.isCheck && isCheckMate()) {
+    let temp_check = null;
+    if (selected_piece.color === "w") {
+        temp_check = checked_b;
+
+    } else {
+        temp_check = checked_w;
+
+    }
+
+    if (temp_check.isCheck && isCheckMate()) {
         let temp_color = null;
-        if (checked.checkColor == "w") {
+        if (temp_check.checkColor == "w") {
             temp_color = "White";
         } else {
             temp_color = "Black"
@@ -515,7 +547,17 @@ function redoChecking(sq) {
     addIdsToArray();
     setMovements();
 
-    if (checked.isCheck && checked.checkColor == selected_piece.color) {
+    let temp_check = null;
+
+    if (selected_piece.color === "w") {
+        temp_check = checked_w;
+
+    } else {
+        temp_check = checked_b;
+
+    }
+
+    if (temp_check.isCheck && temp_check.checkColor == selected_piece.color) {
         is_checked = true;
     } else {
         is_checked = false;
@@ -562,13 +604,23 @@ function redoChecking(sq) {
 }
 
 function isCheckMate() {
+    let temp_check = null;
+    let temp_sel = selected_piece.div;
+    if (selected_piece.color === "w") {
+        temp_check = checked_b;
+
+    } else {
+        temp_check = checked_w;
+
+    }
+
     let isMovesLeft = false;
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             let temp_el = board_ar[i][j];
 
             if (temp_el != null) {
-                let temp_color = checked.checkedSq.children("i").attr("id");
+                let temp_color = temp_check.checkedSq.children("i").attr("id");
                 temp_color = temp_color.charAt(temp_color.length - 1);
 
                 if (temp_el.color == temp_color) {
@@ -584,9 +636,58 @@ function isCheckMate() {
         }
     }
 
+    temp_sel.click();
     return !isMovesLeft;
 
 }
+
+function pawnChecking(piece) {
+    if (selected_piece.pieceName != "pawn") {
+        return;
+    }
+
+    if (!(piece.attr("id").charAt(0) == 0 || piece.attr("id").charAt(0) == 7)) {
+        return;
+    }
+
+    let temp_color = null;
+    if (selected_piece.color = "w") {
+        temp_color = "white";
+    } else {
+        temp_color = "black";
+
+    }
+
+    $("#pawn_promo_bg > #pawn_promo_wrapper > div").css("color", temp_color);
+    $("#pawn_promo_bg").css("display", "block");
+
+
+}
+
+
+function setPawnPromoActions() {
+    let choices = $("#pawn_promo_bg > #pawn_promo_wrapper > div");
+
+    for (let i = 0; i < choices.length; i++) {
+        let temp_choice = choices.eq(i);
+
+        temp_choice.on("click", () => {
+
+            let temp_id = temp_choice.children("i").attr("id");
+            temp_id = temp_id + "_" + selected_piece.color;
+            selected_piece.div.html(temp_choice.html());
+
+            selected_piece.div.children("i").attr("id", temp_id);
+
+            $("#pawn_promo_bg").css("display", "none");
+
+        });
+
+    }
+
+}
+
+setPawnPromoActions();
 
 function pawnMoves(piece) {
     // console.log(selected_piece);
@@ -616,7 +717,7 @@ function pawnMoves(piece) {
 
     if (square_1.children().length == 0) {
         // pawns at start
-        if (row == 1 || row == 6) {
+        if ((row == 1 && piece.color == "b") || (row == 6 && piece.color == "w")) {
             let square_row_2 = null;
             let square_2 = null;
 
@@ -1007,10 +1108,19 @@ function check() {
 }
 
 function clearCheck() {
-    if (!checked.isCheck) {
-        return;
+    if (checked_b.isCheck) {
+        clearCheckSq(checked_b);
+        checked_b = new CheckModel(false, null, null, []);
     }
 
+    if (checked_w.isCheck) {
+        clearCheckSq(checked_w);
+        checked_w = new CheckModel(false, null, null, []);
+    }
+
+}
+
+function clearCheckSq(checked) {
     for (let i = 0; i < checked.checkedBy.length; i++) {
         let temp_square = checked.checkedBy[i];
         temp_square.removeClass("check");
@@ -1019,7 +1129,43 @@ function clearCheck() {
 
     checked.checkedSq.removeClass("check");
 
-    checked = new CheckModel(false, null, null, []);
+
+}
+
+function checkConfirm() {
+    // toMove = !toMove;
+    //
+    // setMovements();
+    // let temp_checked = false;
+    //
+    // for (let i = 0; i < checked.checkedBy.length; i++) {
+    //     if (checked.checkedBy[i].children().length >= 0) {
+    //         let temp_id = checked.checkedBy[i].children("i").attr("id");
+    //         let temp_piece_obj = findPieceObject(temp_id);
+    //
+    //         for (let j = 0; j < temp_piece_obj.availableMoves.length; j++) {
+    //             let availableMove = temp_piece_obj.availableMoves[i];
+    //             if (availableMove.children().length > 0 && availableMove.children("i").attr("id").substring(0, 4) == "king") {
+    //                 if (availableMove.children("i").attr("id").substring(6, 1) == temp_piece_obj.color) {
+    //                     temp_checked = true;
+    //                     continue;
+    //                 }
+    //             }
+    //             availableMove.removeClass("check");
+    //             checked.checkedBy.splice(i, 1);
+    //             i--;
+    //         }
+    //
+    //     }
+    // }
+    //
+    // if (temp_checked) {
+    //     checked.checkedSq.removeClass("check");
+    //
+    // }
+    //
+    // toMove = !toMove;
+
 
 }
 
