@@ -192,14 +192,22 @@ function setMovements() {
 }
 
 function showAvailableMoves() {
-    console.log(selected_piece.id);
-    console.log(selected_piece.availableMoves);
     for (let i = 0; i < selected_piece.availableMoves.length; i++) {
         let temp_moves = selected_piece.availableMoves;
-        let isChecked = redoChecking(selected_piece.availableMoves[i]);
+
+        let isCheckedCover = redoChecking(selected_piece.availableMoves[i]);
         selected_piece.availableMoves = temp_moves;
 
-        if (isChecked) {
+        if (checked.isCheck && isCheckedCover) {
+            selected_piece.availableMoves.splice(i, 1);
+            i--;
+            continue;
+        }
+
+        let isCheckedPrevent = redoChecking(selected_piece.availableMoves[i]);
+        selected_piece.availableMoves = temp_moves;
+
+        if (isCheckedPrevent) {
             selected_piece.availableMoves.splice(i, 1);
             console.log(temp_moves.length);
             i--;
@@ -317,26 +325,35 @@ function isOpponentColor(color, square) {
         temp_color = id.charAt(id.length - 1);
 
         if (id.substring(0, 4) == "king" && temp_color != color) {
-            checked.isCheck = true;
-
-            if (selected_piece.color === "w") {
-                checked.checkColor = "b";
+            if (checked.isCheck && checked.checkColor == color) {
+                checked.checkColor = temp_color;
 
             } else {
-                checked.checkColor = "w";
+                checked.isCheck = true;
 
+                if (selected_piece.color === "w") {
+                    checked.checkColor = "b";
+
+                } else {
+                    checked.checkColor = "w";
+
+                }
+
+                checked.checkedSq = square;
+                checked.checkedBy.push(selected_piece.div);
+
+                console.log(checked.checkedSq);
+                console.log(checked.checkedBy);
+
+                // isCheck = true;
+                // checkColor = temp_color;
+                // checkedBy.push(selected_piece);
+                // checkedSq = square;
+
+                selected_piece.div.addClass("check");
+                square.addClass("check");
             }
 
-            checked.checkedSq = square;
-            checked.checkedBy.push(selected_piece.div);
-
-            // isCheck = true;
-            // checkColor = temp_color;
-            // checkedBy.push(selected_piece);
-            // checkedSq = square;
-
-            selected_piece.div.addClass("check");
-            square.addClass("check");
             return false;
         }
 
@@ -451,18 +468,14 @@ function redoChecking(sq) {
     setMovements();
 
     if (checked.isCheck && checked.checkColor == selected_piece.color) {
-        console.log(sq);
-        console.log(checked);
         is_checked = true;
     } else {
         is_checked = false;
     }
 
-
     sq.html(available_move_html);
     selected_piece.div = temp_sel_piece;
     selected_piece.div.html(selected_piece_html);
-
 
     toMove = temp_move
 
@@ -631,7 +644,7 @@ function pawnMoves(piece) {
             let square_left = square_row[col - 1];
 
             if (square_left.children().length > 0) {
-                let is_opponent_color = isOpponentColor(color, square_left);
+                let is_opponent_color = isOpponentColor(piece.color, square_left);
 
                 if (is_opponent_color) {
                     // add_available_moves(square_left);
