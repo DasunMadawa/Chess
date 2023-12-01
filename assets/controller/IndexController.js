@@ -24,6 +24,9 @@ let checked_b = new CheckModel(false, null, null, []);
 
 let break_iteration_check = false;
 
+let newId = 3;
+
+// let
 // for (let i = 0; i < all_squares.length; i++) {
 //     all_squares.eq(i).addClass("hide");
 // }
@@ -651,7 +654,7 @@ function pawnChecking(piece) {
     }
 
     let temp_color = null;
-    if (selected_piece.color = "w") {
+    if (selected_piece.color == "w") {
         temp_color = "white";
     } else {
         temp_color = "black";
@@ -674,13 +677,14 @@ function setPawnPromoActions() {
         temp_choice.on("click", () => {
 
             let temp_id = temp_choice.children("i").attr("id");
-            temp_id = temp_id + "_" + selected_piece.color;
+            temp_id = temp_id + "_" + newId + "_" + selected_piece.color;
             selected_piece.div.html(temp_choice.html());
 
             selected_piece.div.children("i").attr("id", temp_id);
 
             $("#pawn_promo_bg").css("display", "none");
 
+            newId++;
         });
 
     }
