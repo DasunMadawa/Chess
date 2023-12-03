@@ -1,5 +1,6 @@
 import {CheckModel} from "../../model/CheckModel.js";
 import {PieceModel} from "../../model/PieceModel.js";
+import {KingCastleModel} from "../../model/KingCastleModel.js";
 // import {SelectedPieceModel} from "../../model/SelectedPieceModel.js";
 
 // let white_pieces = $("div[class = 'white']");
@@ -25,6 +26,11 @@ let checked_b = new CheckModel(false, null, null, []);
 let break_iteration_check = false;
 
 let newId = 3;
+
+let white_castle = new KingCastleModel(true, true, true, false);
+let black_castle = new KingCastleModel(true, true, true, false);
+
+let castle = null;
 
 // let
 // for (let i = 0; i < all_squares.length; i++) {
@@ -62,6 +68,12 @@ squares_wrapper.on("click", "div", function () {
 
         // selected_piece_index = i;
         // movements();
+
+        // if (!selected_piece.pieceName == "king") {
+        //     temp_castle.isOk = false;
+        //
+        // }
+
         showAvailableMoves();
 
     } else {
@@ -490,8 +502,8 @@ function availableMovesAction() {
     // selected_piece.div.html("");
     // selected_piece.div = $(this);
 
-    pawnChecking($(this));
 
+    pawnChecking($(this));
     doMoves($(this));
 
     clear_available_moves();
@@ -501,6 +513,72 @@ function availableMovesAction() {
     setMovements();
     // console.log(selected_piece);
 
+
+    // console.log(selected_piece.pieceName);
+    // if (selected_piece.pieceName == "pawn") {
+    //     let black_king = findPieceObject("king_b");
+    //     let white_king = findPieceObject("king_w");
+    //
+    //     black_king.div.click();
+    //     white_king.div.click();
+    //
+    // }
+
+
+    // console.log(temp_check.isCheck + selected_piece.id);
+    checkMateChecking();
+
+    let temp_castle = null;
+
+    if (selected_piece.color == "w") {
+        temp_castle = white_castle;
+    } else {
+        temp_castle = black_castle;
+    }
+
+    let temp_sel = selected_piece;
+
+    if (temp_castle.isOk) {
+        console.log("inside");
+        let temp_div_id = selected_piece.div.attr("id");
+        let row = temp_div_id.charAt(0);
+        let col = temp_div_id.charAt(2);
+
+        console.log(col);
+
+        let temp_rook = null;
+        let temp_col = null;
+        if (col == 2) {
+            temp_rook = board_ar[row][0];
+            temp_col = 3;
+        } else if (col == 6) {
+            temp_rook = board_ar[row][7];
+            temp_col = 5;
+        } else {
+            checkCastleFacilities();
+            return;
+        }
+
+        toMove = !toMove;
+
+        temp_rook.div.click();
+        doMoves(all_squares_ar[row][temp_col]);
+
+        temp_castle.isOk = false;
+        console.log("changed");
+
+    } else {
+        black_castle.isOk = false;
+        white_castle.isOk = false;
+    }
+
+    selected_piece = temp_sel
+
+    checkCastleFacilities();
+
+}
+
+function checkMateChecking() {
     let temp_check = null;
     if (selected_piece.color === "w") {
         temp_check = checked_b;
@@ -510,7 +588,7 @@ function availableMovesAction() {
 
     }
 
-    if (temp_check.isCheck && isCheckMate()) {
+    if (temp_check.isCheck && isCheckMate(temp_check)) {
         let temp_color = null;
         if (temp_check.checkColor == "w") {
             temp_color = "White";
@@ -606,16 +684,78 @@ function redoChecking(sq) {
 
 }
 
-function isCheckMate() {
-    let temp_check = null;
-    let temp_sel = selected_piece.div;
-    if (selected_piece.color === "w") {
-        temp_check = checked_b;
+function checkCastleFacilities() {
+    let temp_castle = null;
 
+    let place_in_board = find_place_in_board(selected_piece.id);
+    let col = Number.parseInt(place_in_board.charAt(2));
+
+    if (selected_piece.color == "w") {
+        temp_castle = white_castle;
     } else {
-        temp_check = checked_w;
+        temp_castle = black_castle;
+    }
+
+    if (selected_piece.pieceName == "rook") {
+        console.log(selected_piece.id);
+        if (col == 0) {
+            temp_castle.isRook1Ok = false;
+        } else if (col == 7) {
+            temp_castle.isRook2Ok = false
+        }
+
+    } else if (selected_piece.pieceName == "king") {
+        console.log(selected_piece.id);
+        temp_castle.isKingOk = false;
+    }
+
+}
+
+function addCastleMoves(row, col) {
+    let temp_castle = null;
+
+    if (selected_piece.color == "w") {
+        temp_castle = white_castle;
+    } else {
+        temp_castle = black_castle;
+    }
+
+    if (!temp_castle.isKingOk) {
+        temp_castle.isOk = false;
+        return;
+    }
+
+    let left_ok = (board_ar[row][col - 1] == null) && (board_ar[row][col - 2] == null) && (board_ar[row][col - 3] == null);
+    let right_ok = (board_ar[row][col + 1] == null) && (board_ar[row][col + 2] == null);
+
+    if (!temp_castle.isRook1Ok) {
+        left_ok = false;
+    } else if (left_ok) {
+        temp_castle.isOk = true;
+        selected_piece.availableMoves.push(all_squares_ar[row][col - 2]);
 
     }
+
+    if (!temp_castle.isRook2Ok) {
+        right_ok = false;
+    } else if (right_ok) {
+        temp_castle.isOk = true;
+        selected_piece.availableMoves.push(all_squares_ar[row][col + 2]);
+
+    }
+
+}
+
+function isCheckMate(check_ob) {
+    let temp_check = check_ob;
+    let temp_sel = selected_piece.div;
+    // if (selected_piece.color === "w") {
+    //     temp_check = checked_b;
+    //
+    // } else {
+    //     temp_check = checked_w;
+    //
+    // }
 
     let isMovesLeft = false;
     for (let i = 0; i < 8; i++) {
@@ -630,6 +770,7 @@ function isCheckMate() {
                     temp_el.div.click();
                     if (temp_el.availableMoves.length > 0) {
                         isMovesLeft = true;
+                        console.log(temp_el.id);
 
                     }
                 }
@@ -677,12 +818,26 @@ function setPawnPromoActions() {
         temp_choice.on("click", () => {
 
             let temp_id = temp_choice.children("i").attr("id");
+
+            selected_piece.pieceName = temp_id;
+
             temp_id = temp_id + "_" + newId + "_" + selected_piece.color;
             selected_piece.div.html(temp_choice.html());
 
             selected_piece.div.children("i").attr("id", temp_id);
 
             $("#pawn_promo_bg").css("display", "none");
+
+            selected_piece.id = temp_id;
+
+            toMove = !toMove;
+            // console.log(selected_piece.pieceName);
+            addIdsToArray();
+            movements();
+            toMove = !toMove;
+            checkMateChecking();
+            // console.log(board_ar);
+
 
             newId++;
         });
@@ -1014,6 +1169,7 @@ function queenMoves(piece_i_html) {
 }
 
 function kingMoves(piece) {
+
     let place_in_board = find_place_in_board(piece.id);
     let row = Number.parseInt(place_in_board.charAt(0));
     let col = Number.parseInt(place_in_board.charAt(2));
@@ -1065,6 +1221,8 @@ function kingMoves(piece) {
     } catch (e) {
 
     }
+
+    addCastleMoves(row, col);
 
 }
 
