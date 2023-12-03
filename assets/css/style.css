@@ -192,6 +192,12 @@ body {
 
 }
 
+@media all and (max-width: 1366px){
+    #squares_wrapper > div {
+        font-size: 34px;
+    }
+}
+
 @media all and (max-width: 800px){
     #squares_wrapper > div {
         font-size: 48px;
