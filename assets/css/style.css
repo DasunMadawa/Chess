@@ -23,7 +23,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 64px;
+    font-size: 62px;
     box-sizing: border-box;
     transition: 0.2s linear;
     /*border: 1px solid black;*/
