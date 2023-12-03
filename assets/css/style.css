@@ -6,8 +6,8 @@ body {
 #squares_wrapper {
     position: absolute;
     display: grid;
-    width: 800px;
-    height: 800px;
+    aspect-ratio: 1/1;
+    height: 80%;
     grid-template-rows: repeat(8 , 1fr);
     grid-template-columns: repeat(8 , 1fr);
     left: 0;
@@ -191,4 +191,42 @@ body {
     font-size: 48px;
 
 }
+
+@media all and (max-width: 800px){
+    #squares_wrapper > div {
+        font-size: 48px;
+    }
+
+    #squares_wrapper {
+        height: unset;
+        width: 600px;
+
+    }
+
+}
+
+@media all and (max-width: 620px){
+    #squares_wrapper > div {
+        font-size: 32px;
+    }
+
+    #squares_wrapper {
+        width: 400px;
+
+    }
+
+}
+
+@media all and (max-width: 425px){
+    #squares_wrapper > div {
+        font-size: 28px;
+    }
+
+    #squares_wrapper {
+        width: 300px;
+
+    }
+
+}
+
 
