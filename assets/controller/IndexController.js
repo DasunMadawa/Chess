@@ -538,7 +538,7 @@ function availableMovesAction() {
 
     let temp_sel = selected_piece;
 
-    if (temp_castle.isOk) {
+    if (temp_castle.isOk && selected_piece.pieceName == "king") {
         console.log("inside");
         let temp_div_id = selected_piece.div.attr("id");
         let row = temp_div_id.charAt(0);
@@ -554,7 +554,7 @@ function availableMovesAction() {
         } else if (col == 6) {
             temp_rook = board_ar[row][7];
             temp_col = 5;
-        } else {
+        } else if (col == 3 || col == 5) {
             checkCastleFacilities();
             return;
         }
