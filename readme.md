@@ -2,7 +2,7 @@
 
 <ul>
     <li>
-        <h4>AI part is not not implemented yet.</h4>
+        <h4>AI part is not implemented yet.</h4>
     </li>
     <li>
         <h4>All other functions are implemented.</h4>
