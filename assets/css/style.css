@@ -171,8 +171,8 @@ body {
     position: absolute;
     display: grid;
     grid-template-columns: repeat(4 , 1fr);
+    aspect-ratio: 4/1;
     width: 400px;
-    height: 100px;
     left: 0;
     right: 0;
     top: 0;
@@ -192,47 +192,28 @@ body {
 
 }
 
-@media all and (max-width: 1366px){
+
+@media all and (max-width: 1366px) {
     #squares_wrapper > div {
-        font-size: 34px;
+        /*font-size: 34px;*/
+    }
+
+    #pawn_promo_wrapper {
+        width: 40%;
+
     }
 }
 
-@media all and (max-width: 800px){
-    #squares_wrapper > div {
-        font-size: 48px;
-    }
-
+@media all and (max-width: 1000px) {
     #squares_wrapper {
         height: unset;
-        width: 600px;
-
+        width: 90%;
     }
 
-}
-
-@media all and (max-width: 620px){
-    #squares_wrapper > div {
-        font-size: 32px;
-    }
-
-    #squares_wrapper {
-        width: 400px;
+    #pawn_promo_wrapper {
+        width: 40%;
 
     }
-
-}
-
-@media all and (max-width: 450px){
-    #squares_wrapper > div {
-        font-size: 28px;
-    }
-
-    #squares_wrapper {
-        width: 300px;
-
-    }
-
 }
 
 

@@ -16,7 +16,7 @@
     <li>
         <h4>
             Yellow squares for available moves , <br> 
-            Red squares for takeout opponent pieces
+            Red squares for takeout opponent pieces.
         </h4>
     </li>
 </ul>
